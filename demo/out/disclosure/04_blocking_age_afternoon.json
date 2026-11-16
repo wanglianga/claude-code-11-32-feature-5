@@ -1,0 +1,95 @@
+{
+  "request_id": "6342daeb-72e4-4c64-abe2-20fd5429164c",
+  "run_id": "75c750c6-0df8-49f7-97cf-8ed6f3597a7f",
+  "status": "blocked",
+  "spec": {
+    "tables": [
+      {
+        "name": "age_afternoon_strict",
+        "programs": [
+          "afternoon_talk"
+        ],
+        "dimensions": [
+          "age_band"
+        ],
+        "include_totals": true
+      }
+    ]
+  },
+  "spec_hash": "6c53aedd2b2806eac38d00e170503126d46c6e1dbc87b7764e30724c3d219a90",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 500000,
+    "min_unweighted_households": 8
+  },
+  "plan": null,
+  "blocking": {
+    "atoms": 15,
+    "policy": {
+      "min_protection_width": 3,
+      "enumeration_node_budget": 500000,
+      "min_unweighted_households": 8
+    },
+    "reason": "protection_width_unreachable",
+    "message": "no remaining pending cell can be hidden to widen the feasible range of the protected cells; already-published catalog cells pin them down. The release is blocked.",
+    "snapshot": {
+      "run_id": "75c750c6-0df8-49f7-97cf-8ed6f3597a7f",
+      "households": 64,
+      "eligible_persons": 109
+    },
+    "equations": 19,
+    "violators": [
+      {
+        "hi": 7,
+        "lo": 7,
+        "cell_id": "d|age_band=25-44|p|afternoon_talk"
+      }
+    ],
+    "node_budget": 500000,
+    "catalog_tables": [
+      {
+        "name": "age_midnight",
+        "status": "published",
+        "table_id": "181125f6-6a5b-4618-8ff2-1f93213346f1",
+        "catalog_revision": 6
+      },
+      {
+        "name": "sex_youth",
+        "status": "published",
+        "table_id": "80563595-aabc-4ad6-9e2f-98a5358626af",
+        "catalog_revision": 7
+      },
+      {
+        "name": "region_midnight",
+        "status": "published",
+        "table_id": "401a462f-a4b5-4286-ad67-6f3208dc37a2",
+        "catalog_revision": 8
+      },
+      {
+        "name": "region_age_afternoon",
+        "status": "published",
+        "table_id": "87d65138-b3b4-46e9-abc7-69b86875ebe5",
+        "catalog_revision": 9
+      }
+    ],
+    "candidates_tried": [],
+    "catalog_revision": 9,
+    "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+    "pinned_by_catalog": {
+      "cell_id": "d|age_band=25-44|p|afternoon_talk",
+      "certificate": [
+        "d|age_band=25-44;region=north|p|afternoon_talk",
+        "d|age_band=25-44;region=south|p|afternoon_talk"
+      ],
+      "explanation": "this suppressed cell is an exact linear consequence of cells that are already public in the catalog; no suppression inside the pending tables can protect it"
+    },
+    "enumeration_nodes_total": 84901
+  },
+  "catalog_revision_checked": 9,
+  "approved_by": null,
+  "approved_at": null,
+  "decided_note": null,
+  "created_by": "analyst",
+  "created_at": "2026-11-16T00:40:08.332705Z",
+  "updated_at": "2026-11-16T00:40:08.332705Z"
+}

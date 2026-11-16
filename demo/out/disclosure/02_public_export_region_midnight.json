@@ -1,0 +1,75 @@
+{
+  "export_id": "5fb7a3ff-d253-4c4b-b4ea-644d2ce52df0",
+  "request_id": "285136be-19da-45d1-b167-bdc0c4a6555d",
+  "run_id": "75c750c6-0df8-49f7-97cf-8ed6f3597a7f",
+  "catalog_revision": 8,
+  "exported_by": "analyst",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 500000,
+    "min_unweighted_households": 3
+  },
+  "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+  "tables": [
+    {
+      "name": "region_midnight",
+      "dimensions": [
+        "region"
+      ],
+      "programs": [
+        "midnight_news"
+      ],
+      "cells": [
+        {
+          "cell_id": "d|region=north|p|midnight_news",
+          "kind": "body",
+          "dims": {
+            "region": "north"
+          },
+          "programs": [
+            "midnight_news"
+          ],
+          "status": "suppressed",
+          "marker": "S"
+        },
+        {
+          "cell_id": "d|region=south|p|midnight_news",
+          "kind": "body",
+          "dims": {
+            "region": "south"
+          },
+          "programs": [
+            "midnight_news"
+          ],
+          "status": "published",
+          "unweighted_households": 7,
+          "weighted_persons": 771.804
+        },
+        {
+          "cell_id": "d||p|midnight_news",
+          "kind": "col_total",
+          "dims": {},
+          "programs": [
+            "midnight_news"
+          ],
+          "status": "suppressed",
+          "marker": "S"
+        }
+      ]
+    }
+  ],
+  "withheld_derivatives": [
+    "mean_minutes_per_person",
+    "mean_minutes_per_listener",
+    "unweighted_persons",
+    "listener_unweighted_n",
+    "per-person weights and weight ranges",
+    "any ratio whose numerator or denominator is not public"
+  ],
+  "notes": [
+    "Cells marked 'suppressed' carry no values anywhere in this document.",
+    "Suppression follows a threshold rule on unweighted household counts plus secondary suppression; it is not differential privacy and no random noise was added.",
+    "Totals are union counts over households and are not the sum of overlapping audience cells.",
+    "Feasible ranges of suppressed cells and the blocking basis of refused releases are kept in the internal plan, not in this public file."
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "request_id": "377305c2-109b-4d92-b085-34c8cbbd27af",
+  "run_id": "3c33d2ef-e10e-4540-9213-d1c7ef3b4c20",
+  "status": "blocked",
+  "spec": {
+    "tables": [
+      {
+        "name": "too_big",
+        "programs": [
+          "youth_drive",
+          "afternoon_talk"
+        ],
+        "dimensions": [
+          "region",
+          "age_band"
+        ],
+        "include_totals": true
+      }
+    ]
+  },
+  "spec_hash": "43b3b14d11297ee52f6aa10164a095656762a79254f7843c7c4180d6bdc1cd13",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 1000,
+    "min_unweighted_households": 3
+  },
+  "plan": null,
+  "blocking": {
+    "atoms": 10,
+    "policy": {
+      "min_protection_width": 3,
+      "enumeration_node_budget": 1000,
+      "min_unweighted_households": 3
+    },
+    "reason": "enumeration_budget_exceeded",
+    "message": "exact verification used more than the 1000 allowed enumeration nodes; the release is blocked instead of trusting a partial search",
+    "snapshot": {
+      "run_id": "3c33d2ef-e10e-4540-9213-d1c7ef3b4c20",
+      "households": 64,
+      "eligible_persons": 109
+    },
+    "equations": 30,
+    "node_budget": 1000,
+    "catalog_tables": [
+      {
+        "name": "region_two_programs",
+        "status": "published",
+        "table_id": "acddc446-57a2-4b6e-96cc-46438607d29c",
+        "catalog_revision": 10
+      }
+    ],
+    "catalog_revision": 10,
+    "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+    "enumeration_nodes": 1001
+  },
+  "catalog_revision_checked": 10,
+  "approved_by": null,
+  "approved_at": null,
+  "decided_note": null,
+  "created_by": "analyst",
+  "created_at": "2026-11-16T00:40:09.148099Z",
+  "updated_at": "2026-11-16T00:40:09.148099Z"
+}

@@ -1,0 +1,218 @@
+{
+  "request_id": "285136be-19da-45d1-b167-bdc0c4a6555d",
+  "run_id": "75c750c6-0df8-49f7-97cf-8ed6f3597a7f",
+  "status": "awaiting_approval",
+  "spec": {
+    "tables": [
+      {
+        "name": "region_midnight",
+        "programs": [
+          "midnight_news"
+        ],
+        "dimensions": [
+          "region"
+        ],
+        "include_totals": true
+      }
+    ]
+  },
+  "spec_hash": "269a3fcc3a177effff8880f0c5704283e9fd21c27baef159f968d63ca258aca4",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 500000,
+    "min_unweighted_households": 3
+  },
+  "plan": {
+    "policy": {
+      "min_protection_width": 3,
+      "enumeration_node_budget": 500000,
+      "min_unweighted_households": 3
+    },
+    "status": "ok",
+    "tables": [
+      {
+        "name": "region_midnight",
+        "cells": [
+          {
+            "dims": {
+              "region": "north"
+            },
+            "kind": "body",
+            "cell_id": "d|region=north|p|midnight_news",
+            "decision": "suppressed_secondary",
+            "programs": [
+              "midnight_news"
+            ],
+            "feasible_range": {
+              "hi": 11,
+              "lo": 4,
+              "width": 7
+            }
+          },
+          {
+            "dims": {
+              "region": "south"
+            },
+            "kind": "body",
+            "cell_id": "d|region=south|p|midnight_news",
+            "decision": "published",
+            "programs": [
+              "midnight_news"
+            ],
+            "weighted_persons": 771.804,
+            "unweighted_households": 7
+          },
+          {
+            "dims": {},
+            "kind": "col_total",
+            "cell_id": "d||p|midnight_news",
+            "decision": "suppressed_catalog",
+            "programs": [
+              "midnight_news"
+            ],
+            "feasible_range": {
+              "hi": 18,
+              "lo": 11,
+              "width": 7
+            }
+          }
+        ],
+        "stats": {
+          "cells": 3,
+          "published": 1,
+          "suppressed_catalog": 1,
+          "suppressed_primary": 0,
+          "suppressed_secondary": 1,
+          "suppressed_body_weighted_share": 0.5
+        },
+        "programs": [
+          "midnight_news"
+        ],
+        "dimensions": [
+          "region"
+        ],
+        "include_totals": true
+      }
+    ],
+    "snapshot": {
+      "run_id": "75c750c6-0df8-49f7-97cf-8ed6f3597a7f",
+      "households": 64,
+      "eligible_persons": 109
+    },
+    "decisions": {
+      "d||p|midnight_news": "suppressed_catalog",
+      "d|region=north|p|midnight_news": "suppressed_secondary",
+      "d|region=south|p|midnight_news": "published"
+    },
+    "readability": {
+      "cells_total": 3,
+      "cells_published": 1,
+      "suppressed_catalog": 1,
+      "suppressed_primary": 0,
+      "suppressed_secondary": 1
+    },
+    "verification": {
+      "atoms": 8,
+      "method": "exact enumeration of non-negative integer solutions",
+      "equations": 7,
+      "exhaustive": true,
+      "node_budget": 500000,
+      "safety_from_heuristics": false,
+      "enumeration_nodes_final": 483,
+      "enumeration_nodes_total": 629
+    },
+    "catalog_tables": [
+      {
+        "name": "age_midnight",
+        "status": "published",
+        "table_id": "181125f6-6a5b-4618-8ff2-1f93213346f1",
+        "catalog_revision": 6
+      },
+      {
+        "name": "sex_youth",
+        "status": "published",
+        "table_id": "80563595-aabc-4ad6-9e2f-98a5358626af",
+        "catalog_revision": 7
+      }
+    ],
+    "catalog_revision": 7,
+    "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+    "protected_ranges": {
+      "d||p|midnight_news": {
+        "hi": 18,
+        "lo": 11,
+        "width": 7
+      },
+      "d|region=north|p|midnight_news": {
+        "hi": 11,
+        "lo": 4,
+        "width": 7
+      },
+      "d|age_band=25-44|p|midnight_news": {
+        "hi": 7,
+        "lo": 0,
+        "width": 7
+      }
+    },
+    "published_values": {
+      "d|region=south|p|midnight_news": {
+        "weighted_persons": 771.804,
+        "unweighted_households": 7
+      }
+    },
+    "withheld_derivatives": [
+      "mean_minutes_per_person",
+      "mean_minutes_per_listener",
+      "unweighted_persons",
+      "listener_unweighted_n",
+      "per-person weights and weight ranges",
+      "any ratio whose numerator or denominator is not public"
+    ],
+    "secondary_suppression": {
+      "cells_hidden": [
+        "d|region=north|p|midnight_news"
+      ],
+      "candidates_tried": [
+        "d|region=north|p|midnight_news"
+      ],
+      "certificates_destroyed": [
+        {
+          "violator": "d|age_band=25-44|p|midnight_news",
+          "certificate": [
+            "d|age_band=45-64|p|midnight_news",
+            "d|age_band=65+|p|midnight_news",
+            "d|region=north|p|midnight_news",
+            "d|region=south|p|midnight_news"
+          ]
+        },
+        {
+          "violator": "d||p|midnight_news",
+          "certificate": [
+            "d|region=north|p|midnight_news",
+            "d|region=south|p|midnight_news"
+          ]
+        }
+      ]
+    },
+    "catalog_protected_ranges": {
+      "d||p|midnight_news": {
+        "hi": 18,
+        "lo": 11,
+        "width": 7
+      },
+      "d|age_band=25-44|p|midnight_news": {
+        "hi": 7,
+        "lo": 0,
+        "width": 7
+      }
+    }
+  },
+  "blocking": null,
+  "catalog_revision_checked": 7,
+  "approved_by": null,
+  "approved_at": null,
+  "decided_note": "ok",
+  "created_by": "analyst",
+  "created_at": "2026-11-16T00:40:08.157651Z",
+  "updated_at": "2026-11-16T00:40:08.189203Z"
+}

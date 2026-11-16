@@ -375,3 +375,72 @@ DROP TRIGGER IF EXISTS run_reports_no_update ON run_reports;
 CREATE TRIGGER run_reports_no_update
     BEFORE UPDATE OR DELETE ON run_reports
     FOR EACH ROW EXECUTE FUNCTION forbid_report_mutation();
+
+-- ---------------------------------------------------------------------------
+-- Disclosure control for external audience tables.
+--
+-- publication_requests: one disclosure-checked release plan per request.
+--   The plan is internal: it records which cells are published/suppressed
+--   and the exact feasible ranges of the protected cells, never the true
+--   values of suppressed cells.
+-- published_tables: the public catalog. Every table that has been exported
+--   stays here forever; withdrawn tables keep constraining future checks
+--   (the audience is not assumed to forget).
+-- catalog_state: a singleton revision counter. Every export bumps it inside
+--   the same transaction that registers the tables, so concurrent releases
+--   are serialised and a later table can never bypass an earlier one.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS catalog_state (
+    singleton   BOOLEAN PRIMARY KEY DEFAULT TRUE CHECK (singleton),
+    revision    BIGINT NOT NULL DEFAULT 0
+);
+INSERT INTO catalog_state (singleton, revision) VALUES (TRUE, 0) ON CONFLICT DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS publication_requests (
+    request_id      UUID PRIMARY KEY,
+    run_id          UUID NOT NULL REFERENCES runs(run_id),
+    status          TEXT NOT NULL,
+    spec            JSONB NOT NULL,
+    spec_hash       TEXT NOT NULL,
+    policy          JSONB NOT NULL,
+    plan            JSONB,
+    blocking        JSONB,
+    catalog_revision_checked BIGINT,
+    approved_by     TEXT,
+    approved_at     TIMESTAMPTZ,
+    decided_note    TEXT,
+    created_by      TEXT NOT NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CHECK (status IN ('awaiting_approval','blocked','approved','exported','rejected','stale'))
+);
+
+CREATE INDEX IF NOT EXISTS publication_requests_run_idx ON publication_requests (run_id);
+
+CREATE TABLE IF NOT EXISTS published_tables (
+    table_id        UUID PRIMARY KEY,
+    request_id      UUID NOT NULL REFERENCES publication_requests(request_id),
+    run_id          UUID NOT NULL REFERENCES runs(run_id),
+    table_index     INTEGER NOT NULL,
+    name            TEXT NOT NULL,
+    spec            JSONB NOT NULL,
+    public_cells    JSONB NOT NULL,
+    hidden_cells    JSONB NOT NULL,
+    catalog_revision BIGINT NOT NULL,
+    status          TEXT NOT NULL DEFAULT 'published',
+    published_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    withdrawn_at    TIMESTAMPTZ,
+    withdrawn_by    TEXT,
+    CHECK (status IN ('published','withdrawn'))
+);
+
+CREATE INDEX IF NOT EXISTS published_tables_run_idx ON published_tables (run_id);
+
+CREATE TABLE IF NOT EXISTS publication_exports (
+    export_id        UUID PRIMARY KEY,
+    request_id       UUID NOT NULL REFERENCES publication_requests(request_id),
+    catalog_revision BIGINT NOT NULL,
+    document         JSONB NOT NULL,
+    exported_by      TEXT NOT NULL,
+    exported_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);

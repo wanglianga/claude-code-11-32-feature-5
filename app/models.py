@@ -196,3 +196,68 @@ class RunCreateIn(Strict):
 
 class ExecuteIn(Strict):
     max_steps: Annotated[int, Field(ge=1, le=100)] = 20
+
+
+# ---------------------------------------------------------------------------
+# Disclosure control for external audience tables
+# ---------------------------------------------------------------------------
+class TableSpecIn(Strict):
+    name: str = Field(min_length=1, max_length=60, description="Human-readable table name, unique within the request.")
+    dimensions: list[Literal["region", "age_band", "sex"]] = Field(
+        min_length=1,
+        max_length=2,
+        description="Grouping dimensions; cells are the cartesian product of their categories.",
+    )
+    programs: list[str] = Field(min_length=1, max_length=8)
+    include_totals: bool = Field(
+        default=True,
+        description="Include union totals (row/column/grand). Totals are computed from household membership, never by summing overlapping cells.",
+    )
+
+    @model_validator(mode="after")
+    def _unique_entries(self):
+        if len(set(self.dimensions)) != len(self.dimensions):
+            raise ValueError("dimensions must not repeat")
+        if len(set(self.programs)) != len(self.programs):
+            raise ValueError("programs must not repeat")
+        if any(not p.strip() for p in self.programs):
+            raise ValueError("program keys must not be blank")
+        return self
+
+
+class DisclosurePolicyIn(Strict):
+    min_unweighted_households: int = Field(
+        default=3,
+        ge=2,
+        le=10,
+        description="Cells supported by fewer unweighted households than this are primarily suppressed.",
+    )
+    min_protection_width: int = Field(
+        default=3,
+        ge=1,
+        le=100,
+        description="Every suppressed cell must keep a feasible integer count range at least this wide.",
+    )
+    enumeration_node_budget: int = Field(
+        default=500_000,
+        ge=1_000,
+        le=2_000_000,
+        description="Cumulative exact-enumeration node budget for the whole check; exceeding it blocks the release.",
+    )
+
+
+class PublicationRequestIn(Strict):
+    run_id: str = Field(description="Published run whose snapshot the tables are built from.")
+    tables: list[TableSpecIn] = Field(min_length=1, max_length=8)
+    policy: DisclosurePolicyIn = Field(default_factory=DisclosurePolicyIn)
+
+    @model_validator(mode="after")
+    def _unique_table_names(self):
+        names = [t.name for t in self.tables]
+        if len(set(names)) != len(names):
+            raise ValueError("table names must be unique within a request")
+        return self
+
+
+class DecisionNoteIn(Strict):
+    note: str | None = Field(default=None, max_length=500)

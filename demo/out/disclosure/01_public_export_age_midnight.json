@@ -1,0 +1,101 @@
+{
+  "export_id": "68e6436c-9cbd-49de-9823-af5f0d00b2aa",
+  "request_id": "0b0a8adc-1c7c-4339-bb96-ec29d1301524",
+  "run_id": "75c750c6-0df8-49f7-97cf-8ed6f3597a7f",
+  "catalog_revision": 6,
+  "exported_by": "analyst",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 500000,
+    "min_unweighted_households": 3
+  },
+  "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+  "tables": [
+    {
+      "name": "age_midnight",
+      "dimensions": [
+        "age_band"
+      ],
+      "programs": [
+        "midnight_news"
+      ],
+      "cells": [
+        {
+          "cell_id": "d|age_band=18-24|p|midnight_news",
+          "kind": "body",
+          "dims": {
+            "age_band": "18-24"
+          },
+          "programs": [
+            "midnight_news"
+          ],
+          "status": "published",
+          "unweighted_households": 0,
+          "weighted_persons": 0
+        },
+        {
+          "cell_id": "d|age_band=25-44|p|midnight_news",
+          "kind": "body",
+          "dims": {
+            "age_band": "25-44"
+          },
+          "programs": [
+            "midnight_news"
+          ],
+          "status": "suppressed",
+          "marker": "S"
+        },
+        {
+          "cell_id": "d|age_band=45-64|p|midnight_news",
+          "kind": "body",
+          "dims": {
+            "age_band": "45-64"
+          },
+          "programs": [
+            "midnight_news"
+          ],
+          "status": "published",
+          "unweighted_households": 7,
+          "weighted_persons": 1022.288
+        },
+        {
+          "cell_id": "d|age_band=65+|p|midnight_news",
+          "kind": "body",
+          "dims": {
+            "age_band": "65+"
+          },
+          "programs": [
+            "midnight_news"
+          ],
+          "status": "published",
+          "unweighted_households": 4,
+          "weighted_persons": 429.098
+        },
+        {
+          "cell_id": "d||p|midnight_news",
+          "kind": "col_total",
+          "dims": {},
+          "programs": [
+            "midnight_news"
+          ],
+          "status": "suppressed",
+          "marker": "S"
+        }
+      ]
+    }
+  ],
+  "withheld_derivatives": [
+    "mean_minutes_per_person",
+    "mean_minutes_per_listener",
+    "unweighted_persons",
+    "listener_unweighted_n",
+    "per-person weights and weight ranges",
+    "any ratio whose numerator or denominator is not public"
+  ],
+  "notes": [
+    "Cells marked 'suppressed' carry no values anywhere in this document.",
+    "Suppression follows a threshold rule on unweighted household counts plus secondary suppression; it is not differential privacy and no random noise was added.",
+    "Totals are union counts over households and are not the sum of overlapping audience cells.",
+    "Feasible ranges of suppressed cells and the blocking basis of refused releases are kept in the internal plan, not in this public file."
+  ]
+}

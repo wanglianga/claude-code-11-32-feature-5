@@ -15,9 +15,11 @@ from .db import Database
 from .errors import ServiceError, conflict, invalid, not_found
 from .jsonutil import loads
 from .models import (
+    DecisionNoteIn,
     DiarySubmissionIn,
     ExecuteIn,
     ProgramBatchIn,
+    PublicationRequestIn,
     RecruitmentBatchIn,
     RunCreateIn,
     TargetBatchIn,
@@ -92,6 +94,16 @@ def create_app(settings: Settings | None = None, db: Database | None = None) -> 
     def analyst(x_api_key: str | None = Header(default=None)) -> str:
         require_key(x_api_key, role="any")
         return "analyst" if x_api_key == settings.analyst_api_key else "admin"
+
+    def director(x_api_key: str | None = Header(default=None)) -> str:
+        require_key(x_api_key, role="any")
+        if x_api_key != settings.admin_api_key:
+            raise ServiceError(
+                403,
+                "director_key_required",
+                "this action is reserved to the research director (admin API key)",
+            )
+        return "director"
 
     # ---------------- meta ----------------
     @app.get("/health", tags=["meta"])
@@ -583,6 +595,84 @@ def create_app(settings: Settings | None = None, db: Database | None = None) -> 
             {**r, "exclusion_detail": loads(r["exclusion_detail"])}
             for r in rows
         ]
+
+    # ---------------- disclosure control ----------------
+    @app.post("/v1/disclosure/requests", status_code=201, tags=["disclosure"])
+    def post_publication_request(body: PublicationRequestIn, actor: str = Depends(analyst)):
+        """Create a publication request; the disclosure check runs immediately."""
+        from . import disclosure
+
+        return disclosure.create_request(db, body.model_dump(mode="json"), actor)
+
+    @app.get("/v1/disclosure/requests", tags=["disclosure"])
+    def list_publication_requests(run_id: str | None = Query(default=None), actor: str = Depends(analyst)):
+        from . import disclosure
+
+        return disclosure.list_requests(db, run_id)
+
+    @app.get("/v1/disclosure/requests/{request_id}", tags=["disclosure"])
+    def get_publication_request(request_id: str, actor: str = Depends(analyst)):
+        from . import disclosure
+
+        return disclosure.get_request(db, request_id)
+
+    @app.post("/v1/disclosure/requests/{request_id}/recheck", tags=["disclosure"])
+    def recheck_publication_request(request_id: str, actor: str = Depends(analyst)):
+        """Re-run the check with the pinned spec against the current catalog."""
+        from . import disclosure
+
+        return disclosure.recheck_request(db, request_id, actor)
+
+    @app.post("/v1/disclosure/requests/{request_id}/approve", tags=["disclosure"])
+    def approve_publication_request(
+        request_id: str,
+        body: DecisionNoteIn | None = None,
+        director_actor: str = Depends(director),
+    ):
+        """Research director confirms the plan (suppression vs readability loss)."""
+        from . import disclosure
+
+        return disclosure.approve_request(db, request_id, director_actor, (body or DecisionNoteIn()).note)
+
+    @app.post("/v1/disclosure/requests/{request_id}/reject", tags=["disclosure"])
+    def reject_publication_request(
+        request_id: str,
+        body: DecisionNoteIn | None = None,
+        director_actor: str = Depends(director),
+    ):
+        from . import disclosure
+
+        return disclosure.reject_request(db, request_id, director_actor, (body or DecisionNoteIn()).note)
+
+    @app.post("/v1/disclosure/requests/{request_id}/export", tags=["disclosure"])
+    def export_publication_request(request_id: str, actor: str = Depends(analyst)):
+        """Export strictly the approved cells and register the tables in the catalog."""
+        from . import disclosure
+
+        return disclosure.export_request(db, request_id, actor)
+
+    @app.get("/v1/disclosure/requests/{request_id}/export", tags=["disclosure"])
+    def get_publication_export(request_id: str, actor: str = Depends(analyst)):
+        from . import disclosure
+
+        return disclosure.get_export(db, request_id)
+
+    @app.get("/v1/disclosure/catalog", tags=["disclosure"])
+    def get_catalog(run_id: str | None = Query(default=None), actor: str = Depends(analyst)):
+        from . import disclosure
+
+        return disclosure.list_catalog(db, run_id)
+
+    @app.post("/v1/disclosure/catalog/{table_id}/withdraw", tags=["disclosure"])
+    def withdraw_catalog_table(
+        table_id: str,
+        body: DecisionNoteIn | None = None,
+        director_actor: str = Depends(director),
+    ):
+        """Withdraw a public table; its cells keep constraining future checks."""
+        from . import disclosure
+
+        return disclosure.withdraw_table(db, table_id, director_actor, (body or DecisionNoteIn()).note)
 
     return app
 

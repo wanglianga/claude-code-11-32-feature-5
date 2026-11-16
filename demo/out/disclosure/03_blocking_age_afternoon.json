@@ -1,0 +1,83 @@
+{
+  "request_id": "a579b795-561c-43a8-9fe8-f4ae9c3f9b9f",
+  "run_id": "895faa52-f0a0-4360-85f9-0e895157e697",
+  "status": "blocked",
+  "spec": {
+    "tables": [
+      {
+        "name": "age_afternoon_strict",
+        "programs": [
+          "afternoon_talk"
+        ],
+        "dimensions": [
+          "age_band"
+        ],
+        "include_totals": true
+      }
+    ]
+  },
+  "spec_hash": "9efb0ceaeb0666dd834440fa503cc3b7c3e76c645a77e01af2572c7fa2445793",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 500000,
+    "min_unweighted_households": 8
+  },
+  "plan": null,
+  "blocking": {
+    "atoms": 9,
+    "policy": {
+      "min_protection_width": 3,
+      "enumeration_node_budget": 500000,
+      "min_unweighted_households": 8
+    },
+    "reason": "protection_width_unreachable",
+    "message": "no remaining pending cell can be hidden to widen the feasible range of the protected cells; already-published catalog cells pin them down. The release is blocked.",
+    "snapshot": {
+      "run_id": "895faa52-f0a0-4360-85f9-0e895157e697",
+      "households": 64,
+      "eligible_persons": 109
+    },
+    "equations": 15,
+    "violators": [
+      {
+        "hi": 7,
+        "lo": 7,
+        "cell_id": "d|age_band=25-44|p|afternoon_talk"
+      }
+    ],
+    "node_budget": 500000,
+    "catalog_tables": [
+      {
+        "name": "age_midnight",
+        "status": "published",
+        "table_id": "1af80bb8-3e49-4fca-93d4-afe69e5561a9",
+        "catalog_revision": 1
+      },
+      {
+        "name": "region_age_afternoon",
+        "status": "published",
+        "table_id": "cbae582f-2b46-4920-a0e6-ad121875d51a",
+        "catalog_revision": 2
+      }
+    ],
+    "candidates_tried": [],
+    "catalog_revision": 2,
+    "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+    "pinned_by_catalog": {
+      "cell_id": "d|age_band=25-44|p|afternoon_talk",
+      "certificate": [
+        "d|age_band=25-44;region=north|p|afternoon_talk",
+        "d|age_band=25-44;region=south|p|afternoon_talk"
+      ],
+      "explanation": "this suppressed cell is an exact linear consequence of cells that are already public in the catalog; no suppression inside the pending tables can protect it"
+    },
+    "enumeration_nodes_total": 845
+  },
+  "catalog_revision_checked": 2,
+  "approved_by": null,
+  "approved_at": null,
+  "decided_note": null,
+  "created_by": "analyst",
+  "created_at": "2026-11-15T22:03:03.075336Z",
+  "updated_at": "2026-11-15T22:03:03.075336Z"
+}

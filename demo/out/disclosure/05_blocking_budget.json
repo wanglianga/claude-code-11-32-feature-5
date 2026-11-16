@@ -1,0 +1,75 @@
+{
+  "request_id": "5917a6ad-bc24-43da-aac7-2bb85e12b743",
+  "run_id": "895faa52-f0a0-4360-85f9-0e895157e697",
+  "status": "blocked",
+  "spec": {
+    "tables": [
+      {
+        "name": "too_big",
+        "programs": [
+          "youth_drive",
+          "afternoon_talk"
+        ],
+        "dimensions": [
+          "region",
+          "age_band"
+        ],
+        "include_totals": true
+      }
+    ]
+  },
+  "spec_hash": "608b8b03f75327b7cbad1951989c98ade69d9960253f47586351400fd61e5763",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 1000,
+    "min_unweighted_households": 3
+  },
+  "plan": null,
+  "blocking": {
+    "atoms": 15,
+    "policy": {
+      "min_protection_width": 3,
+      "enumeration_node_budget": 1000,
+      "min_unweighted_households": 3
+    },
+    "reason": "enumeration_budget_exceeded",
+    "message": "exact verification used more than the 1000 allowed enumeration nodes; the release is blocked instead of trusting a partial search",
+    "snapshot": {
+      "run_id": "895faa52-f0a0-4360-85f9-0e895157e697",
+      "households": 64,
+      "eligible_persons": 109
+    },
+    "equations": 34,
+    "node_budget": 1000,
+    "catalog_tables": [
+      {
+        "name": "age_midnight",
+        "status": "published",
+        "table_id": "1af80bb8-3e49-4fca-93d4-afe69e5561a9",
+        "catalog_revision": 1
+      },
+      {
+        "name": "region_age_afternoon",
+        "status": "published",
+        "table_id": "cbae582f-2b46-4920-a0e6-ad121875d51a",
+        "catalog_revision": 2
+      },
+      {
+        "name": "region_two_programs",
+        "status": "published",
+        "table_id": "4ca3c88d-c3aa-4eac-b77e-cc6da2bd914f",
+        "catalog_revision": 3
+      }
+    ],
+    "catalog_revision": 3,
+    "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+    "enumeration_nodes": 1001
+  },
+  "catalog_revision_checked": 3,
+  "approved_by": null,
+  "approved_at": null,
+  "decided_note": null,
+  "created_by": "analyst",
+  "created_at": "2026-11-15T22:03:03.134746Z",
+  "updated_at": "2026-11-15T22:03:03.134746Z"
+}

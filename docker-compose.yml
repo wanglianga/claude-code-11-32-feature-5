@@ -46,4 +46,6 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    command: ["python", "demo/run_demo.py", "--base-url", "http://api:8000"]
+    command: >
+      sh -c "python demo/run_demo.py --base-url http://api:8000
+             && python demo/run_disclosure_demo.py --base-url http://api:8000"

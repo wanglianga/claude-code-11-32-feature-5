@@ -1,0 +1,217 @@
+{
+  "request_id": "0b0a8adc-1c7c-4339-bb96-ec29d1301524",
+  "run_id": "75c750c6-0df8-49f7-97cf-8ed6f3597a7f",
+  "status": "awaiting_approval",
+  "spec": {
+    "tables": [
+      {
+        "name": "age_midnight",
+        "programs": [
+          "midnight_news"
+        ],
+        "dimensions": [
+          "age_band"
+        ],
+        "include_totals": true
+      }
+    ]
+  },
+  "spec_hash": "9d5cb4a70bdcad9e578355105e7cb928f6119fece7a14d20f8c91550d3672cd7",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 500000,
+    "min_unweighted_households": 3
+  },
+  "plan": {
+    "policy": {
+      "min_protection_width": 3,
+      "enumeration_node_budget": 500000,
+      "min_unweighted_households": 3
+    },
+    "status": "ok",
+    "tables": [
+      {
+        "name": "age_midnight",
+        "cells": [
+          {
+            "dims": {
+              "age_band": "18-24"
+            },
+            "kind": "body",
+            "cell_id": "d|age_band=18-24|p|midnight_news",
+            "decision": "published",
+            "programs": [
+              "midnight_news"
+            ],
+            "weighted_persons": 0,
+            "unweighted_households": 0
+          },
+          {
+            "dims": {
+              "age_band": "25-44"
+            },
+            "kind": "body",
+            "cell_id": "d|age_band=25-44|p|midnight_news",
+            "decision": "suppressed_primary",
+            "programs": [
+              "midnight_news"
+            ],
+            "feasible_range": {
+              "hi": null,
+              "lo": 0,
+              "width": null
+            }
+          },
+          {
+            "dims": {
+              "age_band": "45-64"
+            },
+            "kind": "body",
+            "cell_id": "d|age_band=45-64|p|midnight_news",
+            "decision": "published",
+            "programs": [
+              "midnight_news"
+            ],
+            "weighted_persons": 1022.288,
+            "unweighted_households": 7
+          },
+          {
+            "dims": {
+              "age_band": "65+"
+            },
+            "kind": "body",
+            "cell_id": "d|age_band=65+|p|midnight_news",
+            "decision": "published",
+            "programs": [
+              "midnight_news"
+            ],
+            "weighted_persons": 429.098,
+            "unweighted_households": 4
+          },
+          {
+            "dims": {},
+            "kind": "col_total",
+            "cell_id": "d||p|midnight_news",
+            "decision": "suppressed_secondary",
+            "programs": [
+              "midnight_news"
+            ],
+            "feasible_range": {
+              "hi": null,
+              "lo": 11,
+              "width": null
+            }
+          }
+        ],
+        "stats": {
+          "cells": 5,
+          "published": 3,
+          "suppressed_catalog": 0,
+          "suppressed_primary": 1,
+          "suppressed_secondary": 1,
+          "suppressed_body_weighted_share": 0.059
+        },
+        "programs": [
+          "midnight_news"
+        ],
+        "dimensions": [
+          "age_band"
+        ],
+        "include_totals": true
+      }
+    ],
+    "snapshot": {
+      "run_id": "75c750c6-0df8-49f7-97cf-8ed6f3597a7f",
+      "households": 64,
+      "eligible_persons": 109
+    },
+    "decisions": {
+      "d||p|midnight_news": "suppressed_secondary",
+      "d|age_band=65+|p|midnight_news": "published",
+      "d|age_band=18-24|p|midnight_news": "published",
+      "d|age_band=25-44|p|midnight_news": "suppressed_primary",
+      "d|age_band=45-64|p|midnight_news": "published"
+    },
+    "readability": {
+      "cells_total": 5,
+      "cells_published": 3,
+      "suppressed_catalog": 0,
+      "suppressed_primary": 1,
+      "suppressed_secondary": 1
+    },
+    "verification": {
+      "atoms": 3,
+      "method": "exact enumeration of non-negative integer solutions",
+      "equations": 3,
+      "exhaustive": true,
+      "node_budget": 500000,
+      "safety_from_heuristics": false,
+      "enumeration_nodes_final": 13,
+      "enumeration_nodes_total": 28
+    },
+    "catalog_tables": [],
+    "catalog_revision": 5,
+    "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+    "protected_ranges": {
+      "d||p|midnight_news": {
+        "hi": null,
+        "lo": 11,
+        "width": null
+      },
+      "d|age_band=25-44|p|midnight_news": {
+        "hi": null,
+        "lo": 0,
+        "width": null
+      }
+    },
+    "published_values": {
+      "d|age_band=65+|p|midnight_news": {
+        "weighted_persons": 429.098,
+        "unweighted_households": 4
+      },
+      "d|age_band=18-24|p|midnight_news": {
+        "weighted_persons": 0,
+        "unweighted_households": 0
+      },
+      "d|age_band=45-64|p|midnight_news": {
+        "weighted_persons": 1022.288,
+        "unweighted_households": 7
+      }
+    },
+    "withheld_derivatives": [
+      "mean_minutes_per_person",
+      "mean_minutes_per_listener",
+      "unweighted_persons",
+      "listener_unweighted_n",
+      "per-person weights and weight ranges",
+      "any ratio whose numerator or denominator is not public"
+    ],
+    "secondary_suppression": {
+      "cells_hidden": [
+        "d||p|midnight_news"
+      ],
+      "candidates_tried": [
+        "d||p|midnight_news"
+      ],
+      "certificates_destroyed": [
+        {
+          "violator": "d|age_band=25-44|p|midnight_news",
+          "certificate": [
+            "d|age_band=45-64|p|midnight_news",
+            "d|age_band=65+|p|midnight_news",
+            "d||p|midnight_news"
+          ]
+        }
+      ]
+    },
+    "catalog_protected_ranges": {}
+  },
+  "blocking": null,
+  "catalog_revision_checked": 5,
+  "approved_by": null,
+  "approved_at": null,
+  "decided_note": null,
+  "created_by": "analyst",
+  "created_at": "2026-11-16T00:40:08.108641Z",
+  "updated_at": "2026-11-16T00:40:08.108641Z"
+}

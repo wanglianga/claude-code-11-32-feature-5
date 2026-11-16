@@ -1,0 +1,172 @@
+{
+  "export_id": "ac0c4fa2-ae2c-49de-b217-ac4abf9cf5ff",
+  "request_id": "1d475420-d92f-4557-abac-6ca503495f6a",
+  "run_id": "895faa52-f0a0-4360-85f9-0e895157e697",
+  "catalog_revision": 2,
+  "exported_by": "analyst",
+  "policy": {
+    "min_protection_width": 3,
+    "enumeration_node_budget": 500000,
+    "min_unweighted_households": 3
+  },
+  "policy_statement": "Threshold rule on unweighted household counts plus secondary suppression, verified by exact enumeration of the integer feasible set of the count constraints. No random noise is added and no differential-privacy guarantee is claimed.",
+  "tables": [
+    {
+      "name": "region_age_afternoon",
+      "dimensions": [
+        "region",
+        "age_band"
+      ],
+      "programs": [
+        "afternoon_talk"
+      ],
+      "cells": [
+        {
+          "cell_id": "d|age_band=18-24;region=north|p|afternoon_talk",
+          "kind": "body",
+          "dims": {
+            "region": "north",
+            "age_band": "18-24"
+          },
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 0,
+          "weighted_persons": 0,
+          "pct_of_program": 0.0
+        },
+        {
+          "cell_id": "d|age_band=25-44;region=north|p|afternoon_talk",
+          "kind": "body",
+          "dims": {
+            "region": "north",
+            "age_band": "25-44"
+          },
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 4,
+          "weighted_persons": 463.011,
+          "pct_of_program": 0.17894
+        },
+        {
+          "cell_id": "d|age_band=45-64;region=north|p|afternoon_talk",
+          "kind": "body",
+          "dims": {
+            "region": "north",
+            "age_band": "45-64"
+          },
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 6,
+          "weighted_persons": 966.686,
+          "pct_of_program": 0.373596
+        },
+        {
+          "cell_id": "d|age_band=65+;region=north|p|afternoon_talk",
+          "kind": "body",
+          "dims": {
+            "region": "north",
+            "age_band": "65+"
+          },
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 0,
+          "weighted_persons": 0,
+          "pct_of_program": 0.0
+        },
+        {
+          "cell_id": "d|age_band=18-24;region=south|p|afternoon_talk",
+          "kind": "body",
+          "dims": {
+            "region": "south",
+            "age_band": "18-24"
+          },
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 0,
+          "weighted_persons": 0,
+          "pct_of_program": 0.0
+        },
+        {
+          "cell_id": "d|age_band=25-44;region=south|p|afternoon_talk",
+          "kind": "body",
+          "dims": {
+            "region": "south",
+            "age_band": "25-44"
+          },
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 3,
+          "weighted_persons": 272.929,
+          "pct_of_program": 0.105479
+        },
+        {
+          "cell_id": "d|age_band=45-64;region=south|p|afternoon_talk",
+          "kind": "body",
+          "dims": {
+            "region": "south",
+            "age_band": "45-64"
+          },
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 7,
+          "weighted_persons": 884.894,
+          "pct_of_program": 0.341985
+        },
+        {
+          "cell_id": "d|age_band=65+;region=south|p|afternoon_talk",
+          "kind": "body",
+          "dims": {
+            "region": "south",
+            "age_band": "65+"
+          },
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 0,
+          "weighted_persons": 0,
+          "pct_of_program": 0.0
+        },
+        {
+          "cell_id": "d||p|afternoon_talk",
+          "kind": "col_total",
+          "dims": {},
+          "programs": [
+            "afternoon_talk"
+          ],
+          "status": "published",
+          "unweighted_households": 20,
+          "weighted_persons": 2587.52
+        }
+      ]
+    }
+  ],
+  "withheld_derivatives": [
+    "mean_minutes_per_person",
+    "mean_minutes_per_listener",
+    "unweighted_persons",
+    "listener_unweighted_n",
+    "per-person weights and weight ranges",
+    "any ratio whose numerator or denominator is not public"
+  ],
+  "notes": [
+    "Cells marked 'suppressed' carry no values anywhere in this document.",
+    "Suppression follows a threshold rule on unweighted household counts plus secondary suppression; it is not differential privacy and no random noise was added.",
+    "Totals are union counts over households and are not the sum of overlapping audience cells.",
+    "Feasible ranges of suppressed cells and the blocking basis of refused releases are kept in the internal plan, not in this public file."
+  ]
+}

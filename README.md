@@ -3,12 +3,16 @@
 由**虚构**的入户招募资料与个人收听日记，计算可复算的节目收听人数（reach）与人均收听时长，并在
 报告中明确指出**哪些目标群体覆盖不足**，同时**拒绝**用这些数字比较两档节目的表现。
 
+本服务另含**对外受众表格的披露风险检查**：研究主管发布地区、年龄与节目交叉表前，系统以
+**未加权家庭数阈值 + 二次抑制** 的明确策略（不声称差分隐私）防止多表相减或联立还原出单个家庭行为，
+经精确整数可行解验证后才允许导出。
+
 不接入真实人口库、真实收听设备或任何真实个人数据。数据集见 `demo/fixtures.py`，全部为构造值。
 
 - 技术栈：Python 3.12 / FastAPI / PostgreSQL 18 / psycopg 3（无 ORM，显式 SQL）
 - 项目类型：**后端服务**，因此提供 OpenAPI 3.x 与 Swagger UI：
   - Swagger UI: `http://127.0.0.1:8000/docs`
-  - OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`（OpenAPI 3.1.0，27 条路径）
+  - OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`（OpenAPI 3.1.0，35 条路径）
 
 ---
 
@@ -161,6 +165,33 @@ export AUDIENCE_ANALYST_API_KEY=dev-analyst-key
 
 理由：每档节目的估计建立在不同的、覆盖不完整的子总体上，跨节目差值会把覆盖差异误读成节目表现差异。
 
+### 4.9 对外受众表格的披露风险检查
+
+研究主管发布地区、年龄与节目交叉表前，系统执行基于**未加权家庭数阈值 + 二次抑制**的披露控制
+（**不声称满足差分隐私**，也不对数字加随机噪声）：
+
+- **主抑制**：未加权家庭数低于阈值（默认 `< 3`）的单元格必须隐藏。只打星号不够——行合计减去其余格
+  就能算回它；两张分组略有差别的表也可能联立还原。
+- **二次抑制**：再选择额外单元格或合计隐藏，使每个被保护格在**全部已公开约束**下至少存在规定宽度
+  （默认 `≥ 3`）的可行整数计数范围。
+- **共同检查**：待发布表与**同一数据快照上已公开的表**（含已撤回的表——撤回不假定外部已忘记）一起
+  进入检查。底层单元是**互斥的家庭特征组合（原子）**，各表通过成员关系形成整数计数约束；重叠听众
+  （同一家庭看两个节目）按成员关系计入，**不能硬当互斥行相加**——合计是并集计数，不是各格之和。
+- **精确验证**：对小表**枚举可行整数解**验证上下界（系统按共享变量分解为独立组件后逐一枚举）。
+  超出计算预算（默认 50 万节点）就**不放行**，绝不用启发式挑几格后宣布安全；启发式只用于"选哪格
+  做二次抑制"，安全结论永远来自精确枚举。
+- **加权人数与百分比不旁路**：被隐藏格的加权人数、百分比一并隐藏；百分比只在分子分母都已公开时
+  才发布；无法纳入约束系统的衍生列（人均分钟、听众比、个人权重等）**一概不公开**。
+- **主管确认**：计划给出抑制数量与可读性损失，主管（admin key）比较后确认；导出严格采用批准单元格，
+  **响应标为隐藏但导出仍含原值视为失败**（导出前有硬性检查，公开文件不得含隐藏原值或个人标识）。
+- **并发与修订**：并发申请两张表时以**公开表目录修订**共同检查，后一张不能绕过先发布表；样本或分组
+  变更需新审（请求与其 `run_id` + 规格哈希绑定，不允许改规格）；撤回已公开表不假定外部已忘记，
+  其单元格在后续检查中仍作为约束。
+
+流程：`POST /v1/disclosure/requests`（建申请并立即检查）→ 主管 `POST .../approve` →
+`POST .../export`（登记目录并导出）。被阻断的申请保存**阻断依据**（违反格、可行范围、目录证书），
+被批准的计划保存**最终可行范围**。演示见 `demo/run_disclosure_demo.py`，产物在 `demo/out/disclosure/`。
+
 ---
 
 ## 5. 验证方式（以下均为实际执行过的验证）
@@ -172,8 +203,9 @@ export AUDIENCE_TEST_DATABASE_URL=postgresql://ccdev:ccdev@127.0.0.1:5432/ccdev
 .venv/bin/python -m pytest tests/ -q
 ```
 
-实测结果：**53 passed**（`tests/test_core.py` 18 项纯算法测试；`tests/test_api.py` 35 项接口集成测试，
-使用独立随机 schema，结束后自动清理）。
+实测结果：**77 passed**（`tests/test_core.py` 18 项纯算法测试；`tests/test_api.py` 35 项接口集成测试；
+`tests/test_sdc.py` 12 项披露控制引擎测试；`tests/test_disclosure_api.py` 12 项披露控制接口测试，
+均使用独立随机 schema，结束后自动清理）。
 
 覆盖的断言包括：
 
@@ -188,6 +220,9 @@ export AUDIENCE_TEST_DATABASE_URL=postgresql://ccdev:ccdev@127.0.0.1:5432/ccdev
 - 未知入样概率、跨节目比较、空单元、限幅失败均按预期拒绝或标记；
 - **按日记份数直接平均会高估青年节目**：实测 `youth_drive` 未加权均值 80.00 分钟，校准加权后 46.70 分钟（1.71 倍）；
   偏老节目方向相反（`midnight_news` 5.23 → 7.22），说明偏差并非常数。
+- **披露控制**：单表相减（`12−0−7−4=1`）被二次抑制闭合；跨表联立（`4+3=7`）被目录证书阻断；
+  重叠听众并集（`41 < 23+20`）不等于相加；计算预算超限即阻断；并发两张表按目录修订串行化；
+  撤回表仍约束后续检查；导出无隐藏原值、无个人标识。
 
 ### 5.2 完整演示脚本
 
@@ -195,6 +230,7 @@ export AUDIENCE_TEST_DATABASE_URL=postgresql://ccdev:ccdev@127.0.0.1:5432/ccdev
 
 ```bash
 .venv/bin/python demo/run_demo.py --base-url http://127.0.0.1:8000
+.venv/bin/python demo/run_disclosure_demo.py --base-url http://127.0.0.1:8000
 ```
 
 实测输出依次覆盖：
@@ -215,6 +251,16 @@ export AUDIENCE_TEST_DATABASE_URL=postgresql://ccdev:ccdev@127.0.0.1:5432/ccdev
 14. 未知入样概率 → `422` 且列出具体人；
 15. 迟到日记 → 新运行发布，旧报告哈希完全不变。
 
+`run_disclosure_demo.py` 依次覆盖：
+
+1. 单表相减攻击（`12−0−7−4=1`）与系统的主抑制+二次抑制（`25-44` 与列合计隐藏，可行范围 `[0,∞)`）；
+2. 并发两张表按目录修订串行化（第二张 409 → 重检 → 批准 → 导出）；
+3. 跨表联立（`4+3=7`）→ 目录证书阻断（`protection_width_unreachable`，`pinned_by_catalog`）；
+4. 重叠听众并集（`41 < 23+20`）不等于相加；
+5. 计算预算超限（`enumeration_budget_exceeded`，1001 节点）→ 阻断；
+6. 撤回表仍约束（`suppressed_catalog`）；
+7. 导出清洁检查（无隐藏原值、无个人标识），产物写入 `demo/out/disclosure/`。
+
 ### 5.3 手工最小验证
 
 ```bash
@@ -234,7 +280,7 @@ curl -s -H "$KEY" localhost:8000/v1/runs/$RID/report
 ```
 
 已实际执行上式（本地端口 8000 换成当时端口）：运行状态 `published`，报告含三档节目，
-`/docs` 返回 200，`/openapi.json` 为 OpenAPI `3.1.0`，共 27 条路径。
+`/docs` 返回 200，`/openapi.json` 为 OpenAPI `3.1.0`，共 35 条路径。
 
 ### 5.4 关于 Docker 的说明
 
@@ -247,7 +293,7 @@ curl -s -H "$KEY" localhost:8000/v1/runs/$RID/report
 
 ## 6. 接口一览
 
-OpenAPI 3.1.0 共 **27 条路径**（同路径的 GET / POST 在表内合并为一行）。完整可交互文档见 `/docs`。
+OpenAPI 3.1.0 共 **35 条路径**（同路径的 GET / POST 在表内合并为一行）。完整可交互文档见 `/docs`。
 
 | 方法 | 路径 | 作用 |
 | --- | --- | --- |
@@ -274,6 +320,12 @@ OpenAPI 3.1.0 共 **27 条路径**（同路径的 GET / POST 在表内合并为�
 | POST | `/v1/conflicts/resolutions` | 分析员确认冲突（只影响**新运行**） |
 | GET | `/v1/runs/{id}/coverage-gaps` | 覆盖不足群体 |
 | GET | `/v1/runs/{id}/days`、`/v1/runs/{id}/persons` | 每日分类明细、人员权重与排除 |
+| POST/GET | `/v1/disclosure/requests`、`/v1/disclosure/requests/{id}` | 披露检查申请（建即检查）/ 查看 |
+| POST | `/v1/disclosure/requests/{id}/recheck` | 按当前目录重检（规格不变） |
+| POST | `/v1/disclosure/requests/{id}/approve`、`/reject` | 主管批准 / 拒绝（仅 admin key） |
+| POST/GET | `/v1/disclosure/requests/{id}/export` | 导出（严格采用批准单元格）/ 取回 |
+| GET | `/v1/disclosure/catalog` | 公开表目录（含已撤回） |
+| POST | `/v1/disclosure/catalog/{id}/withdraw` | 撤回公开表（仍约束后续检查） |
 
 ### 从一个节目数字追溯回去
 
@@ -313,11 +365,15 @@ app/
     diary.py         日记重建与四分类日核算
     raking.py        有界 raking 与失败状态
     estimate.py      估计量、家庭分层 bootstrap、百分位区间
+    sdc.py           披露控制引擎：原子、精确整数枚举、二次抑制
+  disclosure.py      发布申请 / 批准 / 导出 / 目录修订 / 撤回
 demo/
   fixtures.py        虚构家庭 / 个人 / 节目 / 目标 / 日记（含全部边界场景）
   run_demo.py        端到端演示脚本
+  run_disclosure_demo.py  披露控制演示（攻击样例、阻断依据、可行范围、清洁导出）
+  out/disclosure/    演示产物（计划、阻断依据、公开导出）
 scripts/seed.py      幂等种子写入
-tests/               53 项单元 + 集成测试
+tests/               77 项单元 + 集成测试
 docker/              entrypoint
 Dockerfile, docker-compose.yml, requirements.txt, pytest.ini
 ```
@@ -330,4 +386,6 @@ Dockerfile, docker-compose.yml, requirements.txt, pytest.ini
 - bootstrap 副本数与 `reach_minutes` 阈值可配置；区间宽度随副本数与样本量变化。
 - 日记日固定为当地日历日（`00:00→24:00`）；若改用广播日，需要新的 `diary_window` 约定并重跑。
 - 分析员确认冲突时点会影响后续运行结果，但**不会**改写已发布报告。
+- 披露控制只覆盖**同一数据快照**的公开表；不同快照（不同运行）之间不做联立检查。
+  精确枚举受计算预算限制，过大的联合系统会被阻断而非近似放行。
 - Docker 配置未在本次环境实际运行（该环境没有 Docker），见 5.4。
